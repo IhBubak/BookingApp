@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import PlacesPage from './PlacesPage'
 import { AiOutlineUser, AiOutlineUnorderedList } from "react-icons/ai"
 import { FaRegBuilding } from "react-icons/fa"
+import OwnBookingsPagePage from './OwnBookingsPage'
 
 const AccountPage = () => {
   //handle delay for slow connections
@@ -62,6 +63,11 @@ const AccountPage = () => {
       {subpage === "places" && (
         <div>
           <PlacesPage />
+        </div>
+      )}
+      {subpage === "bookings" && (
+        <div>
+          <OwnBookingsPagePage/>
         </div>
       )}
     </div>

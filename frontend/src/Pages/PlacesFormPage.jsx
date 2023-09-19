@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from "react-router-dom"
 import axios from "axios"
-import Perks from './Perks'
+import Perks from '../Components/Perks'
 import { useNavigate } from "react-router-dom"
-import PhotosUploader from './PhotosUploader'
+import PhotosUploader from '../Components/PhotosUploader'
 
 const PlacesFormPage = () => {
 
@@ -17,14 +17,15 @@ const PlacesFormPage = () => {
     const [checkIn, setCheckIn] = useState("")
     const [checkOut, setCheckOut] = useState("")
     const [maxGuests, setMaxGuests] = useState(1)
+    const [price, setPrice] = useState(100)
     const navigate = useNavigate()
 
-    useEffect(()=>{
-        if(action==="new" || action===undefined){
+    useEffect(() => {
+        if (action === "new" || action === undefined) {
             return
         }
-        axios.get('/places/'+action).then(response => {
-            const {data} = response
+        axios.get('/places/' + action).then(response => {
+            const { data } = response
             setTitle(data.title)
             setAdress(data.address)
             setAddedPhotos(data.photos)
@@ -34,20 +35,21 @@ const PlacesFormPage = () => {
             setCheckIn(data.checkIn)
             setCheckOut(data.checkOut)
             setMaxGuests(data.maxGuests)
-         })
-    },[action])
+            setPrice(data.price)
+        })
+    }, [action])
 
     async function savePlace(e) {
         e.preventDefault()
         if (action === "new") {
-            const placeData = { title, adress, addedPhotos, description, perks, extraInfos, checkIn, checkOut, maxGuests }
+            const placeData = { title, adress, addedPhotos, description, perks, extraInfos, checkIn, checkOut, maxGuests, price }
             const { data } = await axios.post("/places", placeData)
             if (data) {
                 navigate("/account/places")
             }
         } else {
-            const placeData = { title, adress, addedPhotos, description, perks, extraInfos, checkIn, checkOut, maxGuests }
-            const { data } = await axios.put("/places/"+action, placeData)
+            const placeData = { title, adress, addedPhotos, description, perks, extraInfos, checkIn, checkOut, maxGuests, price }
+            const { data } = await axios.put("/places/" + action, placeData)
             if (data) {
                 navigate("/account/places")
             }
@@ -69,7 +71,7 @@ const PlacesFormPage = () => {
                 <h2 className=' text-xl mt-4 mb-1'>Extra Infos</h2>
                 <textarea placeholder='for more spezifications, wishes... for your place...' value={extraInfos} onChange={e => setExtraInfos(e.target.value)}></textarea>
                 <h2 className=' text-xl mt-4 mb-1'>Add check In and Out</h2>
-                <div className='grid gap-2 md:grid-cols-3'>
+                <div className='grid gap-2 grid-cols-2 md:grid-cols-4'>
                     <div>
                         <h4 className='mt-2 -mb-1'>Check in time</h4>
                         <input type="text" placeholder='14' value={checkIn} onChange={e => setCheckIn(e.target.value)} />
@@ -81,6 +83,10 @@ const PlacesFormPage = () => {
                     <div>
                         <h4 className='mt-2 -mb-1'>Max Number of Guests</h4>
                         <input type="number" placeholder='' value={maxGuests} onChange={e => setMaxGuests(e.target.value)} />
+                    </div>
+                    <div>
+                        <h4 className='mt-2 -mb-1'>Price</h4>
+                        <input type="number" placeholder='' value={price} onChange={e => setPrice(e.target.value)} />
                     </div>
                 </div>
                 <div className='flex justify-center'>

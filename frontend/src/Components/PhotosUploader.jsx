@@ -1,8 +1,9 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import axios from "axios"
-import { BiBookmarkPlus, BiUpload } from "react-icons/bi"
+import { BiBookmarkPlus, BiUpload, BiTrash } from "react-icons/bi"
+import { AiFillStar, AiOutlineStar } from "react-icons/ai"
 
-const PhotosUploader = ({addedPhotos, onChange}) => {
+const PhotosUploader = ({ addedPhotos, onChange }) => {
 
     const [photoLink, setPhotoLink] = useState("")
 
@@ -34,6 +35,13 @@ const PhotosUploader = ({addedPhotos, onChange}) => {
             })
         })
     }
+    async function removePhoto(link) {
+        onChange([...addedPhotos.filter(photo => photo !== link)])
+    }
+    function selectAsMainPhoto(ev, filename) {
+        ev.preventDefault();
+        onChange([filename, ...addedPhotos.filter(photo => photo !== filename)]);
+    }
 
     return (
         <div>
@@ -42,10 +50,21 @@ const PhotosUploader = ({addedPhotos, onChange}) => {
                 <input type="text" placeholder='or add a link for photo here...' value={photoLink} onChange={e => setPhotoLink(e.target.value)} />
                 <button className='flex items-center justify-center mx-2 px-4'><BiBookmarkPlus className=' text-2xl' onClick={addPhotoByLink} /></button>
             </div>
-            <div className='flex items-center gap-2'>
+            <div className='flex items-center gap-2 -mb-4'>
                 {addedPhotos.length > 0 && addedPhotos.map(link => (
-                    <div key={link}>
-                        <img className='w-[100px] h-[100px] rounded-2xl' src={"http://localhost:4000/uploads/" + link} alt="to upload" />
+                    <div key={link} className='shrink-0'>
+                        <img className='w-[100px] h-[100px] rounded-2xl ' src={"http://localhost:4000/uploads/" + link} alt="to upload" />
+                        <button onClick={() => removePhoto(link)} className=' cursor-pointer bg-black rounded-lg opacity-70 relative bottom-6'>
+                            <BiTrash className='text-2xl text-rose-600' />
+                        </button>
+                        <button onClick={ev => selectAsMainPhoto(ev, link)} className=' cursor-pointer bg-black rounded-lg opacity-70 relative bottom-6 left-12'>
+                            {link === addedPhotos[0] && (
+                                <AiFillStar className='text-2xl text-rose-600'/>
+                            )}
+                            {link !== addedPhotos[0] && (
+                                <AiOutlineStar className='text-2xl text-rose-600'/>
+                            )}
+                        </button>
                     </div>
                 ))}
                 <label className='flex items-center justify-center w-[60px] mt-2 p-4 bg-rose-600 text-white rounded-full cursor-pointer'>

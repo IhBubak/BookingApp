@@ -10,6 +10,7 @@ const imageDownloader = require("image-downloader")
 const multer = require("multer")
 const fs = require("fs")
 const Place = require("./models/Place.js")
+const Booking = require("./models/Booking.js")
 require("dotenv").config()
 
 //to get and see all uploaded photos for the user
@@ -98,7 +99,9 @@ app.post("/upload", photosMiddleware.array("photos", 20), async (req, res) => {
 })
 app.post("/places", async (req, res) => {
     const { token } = req.cookies
-    const { title, adress, addedPhotos, description, perks, extraInfos, checkIn, checkOut, maxGuests } = req.body
+    const { title, adress, addedPhotos, description,
+        perks, extraInfos, checkIn, checkOut, maxGuests, price
+    } = req.body
     jwt.verify(token, process.env.jwtKey, {}, async (er, userData) => {
         if (er) console.log(er)
         const placeDoc = await Place.create({
@@ -111,7 +114,8 @@ app.post("/places", async (req, res) => {
             extraInfo: extraInfos,
             checkIn: checkIn,
             checkOut: checkOut,
-            maxGuests: maxGuests
+            maxGuests: maxGuests,
+            price: price
         })
         res.json(placeDoc)
     })
@@ -133,7 +137,7 @@ app.put("/places/:id", async (req, res) => {
     const { token } = req.cookies
     const {
         title, adress, addedPhotos, description,
-        perks, extraInfos, checkIn, checkOut, maxGuests
+        perks, extraInfos, checkIn, checkOut, maxGuests, price
     } = req.body
     jwt.verify(token, process.env.jwtKey, {}, async (er, userData) => {
         const placeDoc = await Place.findById(id)
@@ -148,15 +152,44 @@ app.put("/places/:id", async (req, res) => {
                 extraInfo: extraInfos,
                 checkIn: checkIn,
                 checkOut: checkOut,
-                maxGuests: maxGuests
+                maxGuests: maxGuests,
+                price: price
             })
             await placeDoc.save()
             res.json("ok")
         }
     })
-
 })
-
+app.get('/allplaces', async (req, res) => {
+    res.json(await Place.find());
+});
+app.post("/bookings", async (req, res) => {
+    const { token } = req.cookies
+    const { place, checkIn, checkOut,
+        numberOfGuests, name, phone, price,
+    } = req.body
+    jwt.verify(token, process.env.jwtKey, {}, async (er, userData) => {
+        if (er) console.log(er)
+        const bookingDoc = await Booking.create({
+            user: userData.id,
+            place: place,
+            checkIn: checkIn,
+            checkOut: checkOut,
+            numberOfGuests: numberOfGuests,
+            name: name,
+            phone: phone,
+            price: price
+        })
+        res.json(bookingDoc)
+    })
+})
+app.get("/bookings", async (req, res) => {
+    const { token } = req.cookies
+    jwt.verify(token, process.env.jwtKey, {}, async (er, userData) => {
+        if (er) console.log(er)
+        res.json(await Booking.find({ user: userData.id }).populate('place'))
+    })
+})
 app.listen(4000, () => {
     console.log("app Listen on Port 4000...")
 })
